@@ -1,0 +1,12 @@
+- name: Testing with default K values and a Gigabit link.
+  willie_de_klerk.eigrp_metric_calculator.eigrp_classic:
+    BW: 1000000
+    DELAY: 20
+  register: result_reg
+- name: Debug - metric calculation output
+  debug:
+    msg: '{{ result_reg }}'
+- name: Does the value match what we expect? (3072)
+  assert:
+    that:
+      - result_reg.metric_value == '3072'
