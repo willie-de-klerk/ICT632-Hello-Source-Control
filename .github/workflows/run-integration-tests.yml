@@ -20,4 +20,4 @@ jobs:
     steps:
       - name: Update apt cache
         run: |
-          sudo apt update
+          apt update
