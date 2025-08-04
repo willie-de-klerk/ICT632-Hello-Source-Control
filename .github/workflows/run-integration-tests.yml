@@ -1,0 +1,23 @@
+name: Testing with (integration tests)
+run-name: Module Integration testing by @${{ github.actor }}
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - '/ansible_collections/willie_de_klerk/eigrp_metric_calculator/plugins/**'
+      - '/ansible_collections/willie_de_klerk/eigrp_metric_calculator/tests/integration/**'
+  workflow_dispatch:
+
+jobs:
+  integration-testing:
+    runs-on: ubuntu-latest
+    container:
+      image: composer:latest
+      volumes:
+        - ICT632-Hello-Source-Control:/
+    steps:
+      - name: Update apt cache
+        run: |
+          apt-get update

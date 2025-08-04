@@ -1,0 +1,6 @@
+{
+	"ANSIBLE_MODULE_ARGS": {
+		"BW": "1000000",
+		"DELAY": "20"
+	}
+}
