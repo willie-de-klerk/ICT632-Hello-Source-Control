@@ -68,12 +68,29 @@ options:
  '''
 
 EXAMPLES = '''
-
+# Using the default K values
+- name: Using default K values
+  willie_de_klerk.eigrp_metric_calculator.eigrp_classic:
+    BW: 1000000
+    DELAY: 20
+# Specifying the K values
+- name: Specifying the K values, load and reliability.
+  willie_de_klerk.eigrp_metric_calculator.eigrp_classic:
+    BW: 1000000
+    DELAY: 20
+    K1: 1
+    K2: 0
+    K3: 1
+    K4: 0
+    K5: 0
+    LOAD: 1
+    REL: 1
 '''
 
 
 RETURN = '''
-
+# This is an example of a possible return value, depending on your input the metric value will change.
+metric_value: 3072
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -93,7 +110,7 @@ def run_module():
      , REL=dict(type='int', required=False, default=1)
     )
 
-    result = dict(changed=False, metric_value='',)
+    result = dict(changed=False, metric_value=dict(type='int',default=-1))
 
     # Creating an object named 'module', that is going to be based of the imported class AnsibleModule.
     # This object will serve as an abstraction layer used to work with Ansible.
@@ -113,11 +130,19 @@ def run_module():
     # metric = 256 * ({(K1*BW) + [(K2*BW)/(256-LOAD)] + (K3*DELAY)} * (K5/(REL+K4)))
     # Delay needs to be divided by 10, and if K5 - 0
     if module.params['K5'] == 0:
-        result['metric_value'] = module.run_command(f'K1={module.params['K1']}; K2={module.params['K2']}; K3={module.params['K3']}; K4={module.params['K4']}; K5={module.params['K5']}; BW={module.params['BW']}; DELAY={module.params['DELAY']}; LOAD={module.params['LOAD']}; REL={module.params['REL']}; echo -n $((256 * ((K1 * (10^7/BW))  + ((K2*BW)/(256-LOAD))   + (K3*(DELAY/10)) *1 )  )) ' ,use_unsafe_shell=True)
+        return_code, stdout, stderr = module.run_command(f'K1={module.params['K1']}; K2={module.params['K2']}; K3={module.params['K3']}; K4={module.params['K4']}; K5={module.params['K5']}; BW={module.params['BW']}; DELAY={module.params['DELAY']}; LOAD={module.params['LOAD']}; REL={module.params['REL']}; echo -n $((256 * ((K1 * (10^7/BW))  + ((K2*BW)/(256-LOAD))   + (K3*(DELAY/10)) *1 )  )) ' ,use_unsafe_shell=True)
+        if return_code !=0:
+            module.fail_json(msg=f'Failed to perform the metric calculation: {stderr}')
+        else:
+            result['metric_value'] = stdout
     else:
-        result['metric_value'] = module.run_command(
+        return_code, stdout, stderr = result['metric_value'] = module.run_command(
             f'K1={module.params['K1']}; K2={module.params['K2']}; K3={module.params['K3']}; K4={module.params['K4']}; K5={module.params['K5']}; BW={module.params['BW']}; DELAY={module.params['DELAY']}; LOAD={module.params['LOAD']}; REL={module.params['REL']}; echo -n $((256 * ((K1 * (10^7/BW))  + ((K2*BW)/(256-LOAD))   + (K3*(DELAY/10)) * (K4/(K5+REL)) )  )) ',
             use_unsafe_shell=True)
+        if return_code !=0:
+            module.fail_json(msg=f'Failed to perform the metric calculation: {stderr}')
+
+    result['changed'] = True
     module.exit_json(**result)
 
 def main():
