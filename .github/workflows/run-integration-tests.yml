@@ -16,7 +16,7 @@ jobs:
     container:
       image: composer:latest
       volumes:
-        - ICT632-Hello-Source-Control:/
+        - ICT632-Hello-Source-Control:/ICT632-Hello-Source-Control
     steps:
       - name: Update apt cache
         run: |
