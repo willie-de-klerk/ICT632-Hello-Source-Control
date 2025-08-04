@@ -21,3 +21,4 @@ jobs:
       - name: Update apt cache
         run: |
           apt update
+        shell: bash
